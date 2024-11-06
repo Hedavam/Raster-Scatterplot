@@ -8,13 +8,13 @@ class ImageViewer : public QGraphicsView
     Q_OBJECT
 
     QGraphicsScene scene;
-    QImage image;
+    QImage image; //make local copy of reference
     QGraphicsPixmapItem *giPixmap;
     double scale;
 
 public:
 
-    ImageViewer(const QImage &_image);
+    ImageViewer(const QImage &_image); //pass image as const reference
 
 protected:
 

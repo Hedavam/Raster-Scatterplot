@@ -33,7 +33,7 @@ void MainWindow::openFileSlot() {
 
     lastDir = QFileInfo(fName).absolutePath();
 
-    ColorHistogram *colorHistogram = new ColorHistogram(image); //pass actual image as reference
+    ColorHistogram *colorHistogram = new ColorHistogram(image);
 
     setCentralWidget(colorHistogram);
 

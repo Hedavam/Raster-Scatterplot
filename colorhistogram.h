@@ -20,13 +20,13 @@ class ColorHistogram : public QWidget
     Q_OBJECT
 
 public:
-    ColorHistogram(const QImage &_image); //we pass a reference to the image, and not the whole value cuz it would be computationally expensive
+    ColorHistogram(const QImage &_image); /* we pass a reference to the image, and not the whole value cuz it would be computationally expensive */
 
 /* UI Stuff */
 private:
     QHBoxLayout *mainLayout;
     ImageViewer *imageViewer;
-    QImage image; //need the full thing
+    QImage image; //make local copy of the reference
     QVBoxLayout *sideLayout;
     QPixmap *colorHistogram;
     QLabel *colorHistogramDisplay;

@@ -10,16 +10,14 @@ ColorHistogram::ColorHistogram(const QImage &_image):image(_image) { //initializ
     mainLayout = new QHBoxLayout(this);
 
     /* add imageViewer to mainLayout - make it stretch to fit space */
-    imageViewer = new ImageViewer(image);
+    imageViewer = new ImageViewer(image); //still passing a reference
     mainLayout->addWidget(imageViewer, 1); //stretch of 1 to make imageViewer stretch
-    //connect(imageViewer, &ImageViewer::mouseMovedSignal, this, &ColorHistogram::mouseMovedSlot); //TODO: when hovering, give RGB value
-
 
     /* construct side layout and add to mainLayout */
     sideLayout = new QVBoxLayout();
     mainLayout->addLayout(sideLayout);
 
-    // colorHistogram = new QPixmap(256, 256); /* assign colorHistogram = the one we want for slider, combo-box combination */
+    /* Label to display color histogram later with setPixmap() */
     colorHistogramDisplay = new QLabel();
 
     /* Color Slider Value Display */
@@ -39,20 +37,20 @@ ColorHistogram::ColorHistogram(const QImage &_image):image(_image) { //initializ
     freqThresholdSelector = new QComboBox();
     freqThresholdSelector->addItems(thresholdOptions);
 
-    /* Add UI Stuff to Layout - repetition of -> (so this could, in future be refactored to its own class) */
+    /* Add UI Stuff to Layout - repetition of -> (so this could, in future, be refactored to its own class) */
     sideLayout->addWidget(colorHistogramDisplay);
     sideLayout->addWidget(sliderValDisplay);
     sideLayout->addWidget(colorSlider);
     sideLayout->addWidget(colorSelector);
     sideLayout->addWidget(freqThresholdSelector);
 
-    /* connections for slider, combo boxes */
+    /* connections for color slider, color/freq combo boxes */
     connect(colorSlider, &QSlider::valueChanged, this, &ColorHistogram::sliderValueChanged);
     connect(colorSelector, &QComboBox::activated, this, &ColorHistogram::colorComboBoxToggled);
     connect(freqThresholdSelector, &QComboBox::activated, this, &ColorHistogram::thresholdComboBoxToggled);
 
     /* Logic stuff */
-    freq = QVector<int>(1 << 24, 0);
+    freq = QVector<int>(1 << 24, 0); //2^24 same as 256 x 256 x 256
     buildFreq(image);
 
     /* build pixmaps for red since this is our default color, using default threshold of 1 */
@@ -60,20 +58,20 @@ ColorHistogram::ColorHistogram(const QImage &_image):image(_image) { //initializ
     sliderVal = 1;
     buildHistSlices(0);
 
-    /* display pixmap for slice of red w/ (0, pixmap, pixmap) , since this is our default value of our default color */
+    /* display pixmap for slice of red w/ (0, [pixmap (this one), pixmap, ...]) , since this is our default value for our default color */
     colorHistogramDisplay->setPixmap(histSlices[0].at(0));
 }
 
 void ColorHistogram::buildFreq(const QImage img) {
 
-    //loop thru image to build freq vector
+    /* loop thru image to build freq vector */
     for (int y = 0; y < img.height(); ++y) {
-        const QRgb *line = reinterpret_cast<const QRgb*>(img.constScanLine(y));
+        const QRgb *line = reinterpret_cast<const QRgb*>(img.constScanLine(y)); /* pointer to start of line uchar * -> QRgb pointer; const since we're just scanning */
         for (int x = 0; x < img.width(); ++x) {
             /* RGB is stored as 4 bytes: alpha, red, green, blue; bit-mask alpha to extract RGB; Online Help: https://stackoverflow.com/questions/6126439/what-does-0xff-do */
-            const QRgb &rgb = line[x];
-            ++freq[rgb & 0xffffff]; //bit-wise AND to remove alpha bits; similar stuff when determining red, green, blue etc.
-            }
+            const QRgb &rgb = line[x]; /* use reference since we don't gotta copy and modify RGB value */
+            ++freq[rgb & 0xffffff]; /* bit-wise AND to remove alpha bits since they would be 0 in AND operation; similar stuff when determining red, green, blue etc. */
+        }
     }
 }
 
@@ -81,9 +79,8 @@ void ColorHistogram::sliderValueChanged(int value) {
     /* cosmetics */
     sliderValDisplay->setText(QString::number(value));
 
-    /* set sliderVal member to slider's value, access corresponding pixmap */
+    /* set sliderVal member to slider's value, access corresponding Pixmaps and set it */
     sliderVal = value;
-    //acccess value for Qmap[color_key];
     colorHistogramDisplay->setPixmap(histSlices[selectedColor].at(value));
 
 }
@@ -106,7 +103,7 @@ void ColorHistogram::thresholdComboBoxToggled(int index) {
     int currentSliderValue = colorSlider->value();
 
     /* rebuild pixmaps for new threshold */
-    histSlices.clear(); //so that our function re-builds pixmaps for all colors
+    histSlices.clear(); /* so that our function re-builds pixmaps for all colors */
     buildHistSlices(currentColor);
 
     /* display updated pixmap for new threshold */
@@ -126,7 +123,6 @@ void ColorHistogram::buildHistSlices(int _selectedColor) {
         /* Need a temp image to modify specific pixels */
         QPixmap sliceView(256, 256);
         QImage temp(sliceView.toImage());
-
 
         int freqIndex = 0;
         QRgb freqColor(0);
@@ -151,8 +147,7 @@ void ColorHistogram::buildHistSlices(int _selectedColor) {
                         break;
                 }
 
-
-                /* If color is present, show it on pixmap; ohterwise show black */
+                /* If color is present, show it on pixmap; otherwise show black */
                 if (freq[freqIndex] >= freqThreshold) {
                     temp.setPixelColor(x, y, freqColor);
                 } else {
