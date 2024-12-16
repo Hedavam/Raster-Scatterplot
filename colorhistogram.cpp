@@ -4,7 +4,8 @@
 
 /* deriving from qwidget, setlayout, add stuff; setcentralwidget only happens in qmainwindow */
 
-ColorHistogram::ColorHistogram(const QImage &_image):image(_image) { //initializing image member to value of image passed to constructor as reference
+//initializing image member to value of image passed to constructor as reference
+ColorHistogram::ColorHistogram(const QImage &_image):image(_image), selectedColor(0) {
 
     /* UI Stuff */
     mainLayout = new QHBoxLayout(this);
@@ -59,7 +60,7 @@ ColorHistogram::ColorHistogram(const QImage &_image):image(_image) { //initializ
     buildHistSlices(0);
 
     /* display pixmap for slice of red w/ (0, [pixmap (this one), pixmap, ...]) , since this is our default value for our default color */
-    colorHistogramDisplay->setPixmap(histSlices[0].at(0));
+    colorHistogramDisplay->setPixmap(histSlices[0][0]);
 }
 
 void ColorHistogram::buildFreq(const QImage img) {
@@ -81,7 +82,7 @@ void ColorHistogram::sliderValueChanged(int value) {
 
     /* set sliderVal member to slider's value, access corresponding Pixmaps and set it */
     sliderVal = value;
-    colorHistogramDisplay->setPixmap(histSlices[selectedColor].at(value));
+    colorHistogramDisplay->setPixmap(histSlices[selectedColor][value]);
 
 }
 
@@ -94,7 +95,7 @@ void ColorHistogram::colorComboBoxToggled(int index) {
     buildHistSlices(selectedColor);
 
     /* display updated pixmap for new color */
-    colorHistogramDisplay->setPixmap(histSlices[index].at(currentSliderValue));
+    colorHistogramDisplay->setPixmap(histSlices[index][currentSliderValue]);
 }
 
 void ColorHistogram::thresholdComboBoxToggled(int index) {
@@ -107,7 +108,7 @@ void ColorHistogram::thresholdComboBoxToggled(int index) {
     buildHistSlices(currentColor);
 
     /* display updated pixmap for new threshold */
-    colorHistogramDisplay->setPixmap(histSlices[currentColor].at(currentSliderValue));
+    colorHistogramDisplay->setPixmap(histSlices[currentColor][currentSliderValue]);
 }
 
 
@@ -147,7 +148,7 @@ void ColorHistogram::buildHistSlices(int _selectedColor) {
                         break;
                 }
 
-                /* If color is present, show it on pixmap; otherwise show black */
+                /* If colors is present, show it on pixmap; otherwise show black */
                 if (freq[freqIndex] >= freqThreshold) {
                     temp.setPixelColor(x, y, freqColor);
                 } else {
