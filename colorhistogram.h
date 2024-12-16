@@ -21,6 +21,11 @@ class ColorHistogram : public QWidget
 
 public:
     ColorHistogram(const QImage &_image); /* we pass a reference to the image, and not the whole value cuz it would be computationally expensive */
+    enum {
+        red,
+        green,
+        blue,
+    };
 
 /* UI Stuff */
 private:

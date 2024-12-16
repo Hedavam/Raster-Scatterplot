@@ -5,7 +5,7 @@
 /* deriving from qwidget, setlayout, add stuff; setcentralwidget only happens in qmainwindow */
 
 //initializing image member to value of image passed to constructor as reference
-ColorHistogram::ColorHistogram(const QImage &_image):image(_image), selectedColor(0) {
+ColorHistogram::ColorHistogram(const QImage &_image):image(_image), selectedColor(ColorHistogram::red) {
 
     /* UI Stuff */
     mainLayout = new QHBoxLayout(this);
@@ -60,7 +60,7 @@ ColorHistogram::ColorHistogram(const QImage &_image):image(_image), selectedColo
     buildHistSlices(0);
 
     /* display pixmap for slice of red w/ (0, [pixmap (this one), pixmap, ...]) , since this is our default value for our default color */
-    colorHistogramDisplay->setPixmap(histSlices[0][0]);
+    colorHistogramDisplay->setPixmap(histSlices[selectedColor][0]);
 }
 
 void ColorHistogram::buildFreq(const QImage img) {
@@ -134,15 +134,15 @@ void ColorHistogram::buildHistSlices(int _selectedColor) {
             for(int y = 0; y < temp.height(); ++y)
             {
                 switch(_selectedColor) {
-                    case 0:
+                    case ColorHistogram::red:
                         freqIndex = qRgb(slice, x, y) & 0xffffff;
                         freqColor = qRgb(slice, x, y);
                         break;
-                    case 1:
+                    case ColorHistogram::green:
                         freqIndex = qRgb(x, slice, y) & 0xffffff;
                         freqColor = qRgb(x, slice, y);
                         break;
-                    case 2:
+                    case ColorHistogram::blue:
                         freqIndex = qRgb(x, y, slice) & 0xffffff;
                         freqColor = qRgb(x, y, slice);
                         break;
